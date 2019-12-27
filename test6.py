@@ -1,23 +1,28 @@
-def main():
-    db_name = os.environ['PGDATABASE']
-    connection_parameters = {
-        'host': os.environ['PGHOST'],
-        'database': 'postgres',
-        'user': os.environ['PGUSER'],
-        'password': os.environ['PGPASSWORD']
-    }
-    drop_statement = 'DROP DATABASE IF EXISTS {};'.format(db_name)
-    ddl_statement = 'CREATE DATABASE {};'.format(db_name)
-    conn = connect(**connection_parameters)
-    conn.autocommit = True
+import psycopg2
 
-    try:
-        with conn.cursor() as cursor:
-            cursor.execute(drop_statement)
-            cursor.execute(ddl_statement)
-        conn.close()
-        sys.stdout.write('Created database environment successfully.\n')
-    except psycopg2.Error:
-        raise SystemExit(
-            'Failed to setup Postgres environment.\n{0}'.format(sys.exc_info())
-        ) 
+#connect to the db
+con = psycopg2.connect(
+                                  #user = "dunaev",
+                                  #password = "8826447",
+                                  host = "192.168.10.126",
+                                  port = "1433",
+                                  #database = "ILSA"
+								  )
+
+#cursor
+cur = con.cursor()
+
+#execute query
+cur.execute('select id, number from dbo.fedresurs')
+
+
+
+rows = cur.fetchall()
+
+for r in rows:
+    print(f"id {r[0]} number {r[1]}")
+
+#close the cursor
+cur.close()
+#close the connection
+con.close()

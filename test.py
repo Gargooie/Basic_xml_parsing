@@ -8,4 +8,3 @@ print('all the data:')
 for elem in root:
    for subelem in elem:
       print(subelem.text)
-
