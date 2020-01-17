@@ -1,6 +1,6 @@
 import os
 from xml.etree import ElementTree
-file_name = 'dealers.xml'
+file_name = 'dealers2.xml'
 full_file = os.path.abspath(os.path.join('data', file_name))
 from xml.dom import minidom
 #print("файл: ", full_file) #full path to the file
