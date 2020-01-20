@@ -3,7 +3,7 @@ import psycopg2
 
 from xml.etree import ElementTree
 from lxml import etree
-file_name = 'offers.xml'
+file_name = 'offers2.xml'
 full_file = os.path.abspath(os.path.join('data', file_name))
 print("файл: ", full_file) #full path to the file
 dom = ElementTree.parse(full_file)
@@ -269,14 +269,13 @@ for c in courses:
 	
 	
 	
-	property_id_1007 = root.xpath("//Property[contains(@Id,'1007')]")
-	def insert(a):
-		property_id_1007 = root.xpath("//Property[contains(@Id,'1007')]")
+	
+	def insert(a, b):
 		property_id = a
 		property_value = b[0].text
 		value = property_value
-		cur.execute("insert into dealers_management.property_id (vehicle_id, property_id, value)"
-		" values ( %s, %s, %s)", (vehicle_id, property_id, value ))
+		cur.execute("insert into dealers_management.property_id (vehicle_id, property_id, value, creation_date, updated_date)"
+		" values ( %s, %s, %s, %s, %s)", (vehicle_id, property_id, value, creation_date, updated_date))
 		
 	
 	insert("1007", property_id_1007)
