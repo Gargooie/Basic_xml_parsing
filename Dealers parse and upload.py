@@ -8,7 +8,6 @@ print("файл: ", full_file) #full path to the file
 dom = ElementTree.parse(full_file)
 #dom = ElementTree(file=urllib.request.urlopen('https://api.ilsa.ru/sale/v1/dealers.xml' % i ))
 
-#print(dom)
 
 #connection to the DB
 con = psycopg2.connect(

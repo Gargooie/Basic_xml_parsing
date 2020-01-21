@@ -11,30 +11,6 @@ dom = ElementTree.parse(full_file)
 x=0
 courses = dom.getroot()
 
-#garbage
-#for temp in courses.find('//Dealer/Location'):
-#	location_longitude = temp.attrib.get('Longitude')
-#	print(location_longitude)Dealer Id
-
-#doc = minidom.parse('dealers3.xml')
-#items = doc.getElementsByTagName('item')
-#print('Item #2 attribute:')
-#print(items[0].attributes['name'].value)
-#
-## all item attributes
-#print('\nAll attributes:')
-#for elem in items:
-#    print(elem.attributes['name'].value)
-#
-## one specific item's data
-#print('\nItem #2 data:')
-#print(items[0].firstChild.data)
-#print(items[0].childNodes[0].data)
-#
-## all items data
-#print('\nAll item data:')
-#for elem in items:
-#    print(elem.firstChild.data)
 
 #my stuff@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 
