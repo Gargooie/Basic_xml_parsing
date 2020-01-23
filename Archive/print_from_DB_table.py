@@ -2,11 +2,11 @@ import psycopg2
 
 #connect to the db
 con = psycopg2.connect(
-                                  #user = "dunaev",
-                                  #password = "8826447",
+                                  user = "dunaev",
+                                  password = "8826447",
                                   host = "192.168.10.126",
                                   port = "1433",
-                                  #database = "ILSA"
+                                  database = "ILSA"
 								  )
 
 #cursor

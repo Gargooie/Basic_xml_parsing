@@ -1,12 +1,20 @@
 import os
 import psycopg2
 import urllib.request
+import requests
 from xml.etree import ElementTree
 file_name = 'dealers.xml'
 full_file = os.path.abspath(os.path.join('data', file_name))
 print("файл: ", full_file) #full path to the file
 dom = ElementTree.parse(full_file)
 #dom = ElementTree(file=urllib.request.urlopen('https://api.ilsa.ru/sale/v1/dealers.xml' % i ))
+
+r = requests.get('https://api.ilsa.ru/sale/v1/dealers.xml?q=status:exchange')
+#user = r.content
+#user2 = r.text
+#print(user2) 
+
+
 
 
 #connection to the DB
@@ -21,9 +29,18 @@ con = psycopg2.connect(
 
 cur = con.cursor()
 
+cur.execute('truncate table dealers_management.dealers')
+cur.execute('truncate table dealers_management.property_id')
+cur.execute('truncate table dealers_management.vehicles')
+
+
 #importing xml
+#courses = ElementTree.fromstring(r.content)
 courses = dom.findall('Dealer')
+
 x=0
+
+
 for c in courses:
 	dealer_id = c.get('Id')
 	name = c.find('Name').text
@@ -37,6 +54,7 @@ for c in courses:
 		pass
 	#end of exception block  <<<
 	#taking nested attributes >>>
+	x +=1
 	y=0
 	foobars = dom.findall('.//Location')
 	
@@ -46,6 +64,7 @@ for c in courses:
 		if x == y:
 			longitude = elem.get('Longitude')
 			latitude = elem.get('Latitude')
+			region_id = elem.get('Id')
 	# taking nested attributes <<<<
 
 	address = c.find('Location/Address').text
@@ -55,8 +74,8 @@ for c in courses:
 	link = c.find('Offers/Link').text
 	internal_extension_number = c.find('InternalExtensionNumber').text
 	try:
-		cur.execute("insert into dealers_management.dealers ( dealer_id, name , brand, area, region, district, address, phone_number, www, updated_date, link, internal_extension_number)"
-		" values ( %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)", ( dealer_id, name , brand, area, region, district, address, phone_number, www, updated_date, link, internal_extension_number))
+		cur.execute("insert into dealers_management.dealers ( dealer_id, name , brand, area, region, district, address, phone_number, www, updated_date, link, internal_extension_number, location_longitude, location_latitude, region_id)"
+		" values ( %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)", ( dealer_id, name , brand, area, region, district, address, phone_number, www, updated_date, link, internal_extension_number, longitude, latitude, region_id))
 	except:
 		print(dealer_id, end=" ")
 		print("уже существует в таблице")

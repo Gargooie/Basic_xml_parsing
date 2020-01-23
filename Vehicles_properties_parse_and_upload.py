@@ -1,23 +1,23 @@
 import os
 import psycopg2
-
+import requests
 from xml.etree import ElementTree
 from lxml import etree
-file_name = 'offers.xml'
+file_name = 'offers2.xml'
 full_file = os.path.abspath(os.path.join('data', file_name))
 print("файл: ", full_file) #full path to the file
 dom = ElementTree.parse(full_file)
 
 root = dom.getroot()
 
-tree = etree.parse('offers.xml')
+tree = etree.parse('offers2.xml')
 root = tree.getroot()
 	
 
 
 
 
-courses = dom.findall('Vehicle')
+
 x=0
 
 con = psycopg2.connect(
@@ -31,7 +31,19 @@ con = psycopg2.connect(
 
 cur = con.cursor()
 	
+cur.execute('truncate table dealers_management.property_id')
+cur.execute('truncate table dealers_management.vehicles')
 
+
+token = '&t=autostat&access_token=ZWNiNzJjMjFkY2FmOWE5MDMwOWE3NDU1NzYwZDYyMGRlOWE4MGI4OTllMDYyYjU3ZTJiYmE3NmU4Yjc0NjU4MA'
+link = 'http://api.ilsa.ru/auto/v1/offers?q=dealer%3ARU77KI02'
+linkage = link + "&t=autostat&access_token=ZWNiNzJjMjFkY2FmOWE5MDMwOWE3NDU1NzYwZDYyMGRlOWE4MGI4OTllMDYyYjU3ZTJiYmE3NmU4Yjc0NjU4MA"
+
+r2 = requests.get('https://api.ilsa.ru/auto/v1/offers?q=dealer%3ARU77KI02&t=autostat&access_token=ZWNiNzJjMjFkY2FmOWE5MDMwOWE3NDU1NzYwZDYyMGRlOWE4MGI4OTllMDYyYjU3ZTJiYmE3NmU4Yjc0NjU4MA')
+print(linkage)
+
+#courses = ElementTree.fromstring(r2.content)
+courses = dom.findall('Vehicle')
 
 for c in courses:
 	x +=1
@@ -98,7 +110,7 @@ for c in courses:
 	" values ( %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)", (dealer_id, vin, vehicle_id , creation_date, updated_date, mark, model, modification, modification_code, modification_index, color, price, color_code, price_currency, condition_id, condition_mileage))
 
 
-con.commit()
+#con.commit()
 
 
 
