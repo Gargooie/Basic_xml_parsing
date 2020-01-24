@@ -10,8 +10,6 @@ dom = ElementTree.parse(full_file)
 
 root = dom.getroot()
 
-tree = etree.parse('offers2.xml')
-root = tree.getroot()
 	
 
 
@@ -39,11 +37,24 @@ token = '&t=autostat&access_token=ZWNiNzJjMjFkY2FmOWE5MDMwOWE3NDU1NzYwZDYyMGRlOW
 link = 'http://api.ilsa.ru/auto/v1/offers?q=dealer%3ARU77KI02'
 linkage = link + "&t=autostat&access_token=ZWNiNzJjMjFkY2FmOWE5MDMwOWE3NDU1NzYwZDYyMGRlOWE4MGI4OTllMDYyYjU3ZTJiYmE3NmU4Yjc0NjU4MA"
 
-r2 = requests.get('https://api.ilsa.ru/auto/v1/offers?q=dealer%3ARU77KI02&t=autostat&access_token=ZWNiNzJjMjFkY2FmOWE5MDMwOWE3NDU1NzYwZDYyMGRlOWE4MGI4OTllMDYyYjU3ZTJiYmE3NmU4Yjc0NjU4MA')
+#the same as string r2 = requests.get('https://api.ilsa.ru/auto/v1/offers?q=dealer%3ARU77KI02&t=autostat&access_token=ZWNiNzJjMjFkY2FmOWE5MDMwOWE3NDU1NzYwZDYyMGRlOWE4MGI4OTllMDYyYjU3ZTJiYmE3NmU4Yjc0NjU4MA')
+r2 = requests.get(linkage)
 print(linkage)
 
-#courses = ElementTree.fromstring(r2.content)
-courses = dom.findall('Vehicle')
+
+#tree = etree.parse('offers2.xml')
+tree = etree.fromstring(r2.content)
+root = tree.getroot()
+
+print("GGGGGGGGGGGGGGG")
+print(r2.content)
+print("GGGGGGGGGGGGGGG")
+
+courses = ElementTree.fromstring(r2.content)
+courses = courses.findall('Vehicle')
+
+#courses = dom.findall('Vehicle')
+
 
 for c in courses:
 	x +=1

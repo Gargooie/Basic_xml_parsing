@@ -35,8 +35,8 @@ cur.execute('truncate table dealers_management.vehicles')
 
 
 #importing xml
-#courses = ElementTree.fromstring(r.content)
-courses = dom.findall('Dealer')
+courses = ElementTree.fromstring(r.content)
+#courses = dom.findall('Dealer')
 
 x=0
 
@@ -65,6 +65,14 @@ for c in courses:
 			longitude = elem.get('Longitude')
 			latitude = elem.get('Latitude')
 			region_id = elem.get('Id')
+
+	foobars = dom.findall('.//Region')
+	y=0
+	for elem in foobars:
+		y +=1
+		if x == y:
+			region_id = elem.get('Id')
+
 	# taking nested attributes <<<<
 
 	address = c.find('Location/Address').text

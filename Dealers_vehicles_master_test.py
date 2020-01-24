@@ -3,6 +3,7 @@ import psycopg2
 import urllib.request
 import requests
 from xml.etree import ElementTree
+from lxml import etree
 file_name = 'dealers2.xml'
 full_file = os.path.abspath(os.path.join('data', file_name))
 print("файл: ", full_file) #full path to the file
@@ -15,6 +16,12 @@ r = requests.get('https://api.ilsa.ru/sale/v1/dealers.xml?q=status:exchange')
 #print(user2) 
 
 
+#delete it!!!
+root = dom.getroot()
+
+tree = etree.parse('offers.xml')
+root = tree.getroot()
+#
 
 
 #connection to the DB
@@ -29,7 +36,6 @@ con = psycopg2.connect(
 
 cur = con.cursor()
 
-#clear 3 tables for debug
 cur.execute('truncate table dealers_management.dealers')
 cur.execute('truncate table dealers_management.property_id')
 cur.execute('truncate table dealers_management.vehicles')
@@ -40,9 +46,10 @@ cur.execute('truncate table dealers_management.vehicles')
 courses = dom.findall('Dealer')
 
 x=0
-token = '&t=autostat&access_token=ZWNiNzJjMjFkY2FmOWE5MDMwOWE3NDU1NzYwZDYyMGRlOWE4MGI4OTllMDYyYjU3ZTJiYmE3NmU4Yjc0NjU4MA'
-linkage = '1'
+
+
 for c in courses:
+    
     dealer_id = c.get('Id')
     name = c.find('Name').text
     brand = c.find('Brand').text
@@ -55,6 +62,7 @@ for c in courses:
         pass
     #end of exception block  <<<
     #taking nested attributes >>>
+    x +=1
     y=0
     foobars = dom.findall('.//Location')
 
@@ -64,6 +72,15 @@ for c in courses:
         if x == y:
             longitude = elem.get('Longitude')
             latitude = elem.get('Latitude')
+            region_id = elem.get('Id')
+
+    foobars = dom.findall('.//Region')
+    y=0
+    for elem in foobars:
+        y +=1
+        if x == y:
+            region_id = elem.get('Id')
+
     # taking nested attributes <<<<
 
     address = c.find('Location/Address').text
@@ -73,8 +90,8 @@ for c in courses:
     link = c.find('Offers/Link').text
     internal_extension_number = c.find('InternalExtensionNumber').text
     try:
-        cur.execute("insert into dealers_management.dealers ( dealer_id, name , brand, area, region, district, address, phone_number, www, updated_date, link, internal_extension_number)"
-        " values ( %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)", ( dealer_id, name , brand, area, region, district, address, phone_number, www, updated_date, link, internal_extension_number))
+        cur.execute("insert into dealers_management.dealers ( dealer_id, name , brand, area, region, district, address, phone_number, www, updated_date, link, internal_extension_number, location_longitude, location_latitude, region_id)"
+        " values ( %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)", ( dealer_id, name , brand, area, region, district, address, phone_number, www, updated_date, link, internal_extension_number, longitude, latitude, region_id))
     except:
         print(dealer_id, end=" ")
         print("уже существует в таблице")
@@ -82,11 +99,24 @@ for c in courses:
     #print("%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s",  dealer_id, name , brand, area, region, district, address, phone_number, www, updated_date, link, internal_extension_number)
     con.commit()
 
-    #vehicles upload @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@>>>
-    linkage = link
+#vehicles upload @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@>>>
+    token = '&t=autostat&access_token=ZWNiNzJjMjFkY2FmOWE5MDMwOWE3NDU1NzYwZDYyMGRlOWE4MGI4OTllMDYyYjU3ZTJiYmE3NmU4Yjc0NjU4MA'
+    link = 'http://api.ilsa.ru/auto/v1/offers?q=dealer%3ARU77KI02'
     linkage = link + "&t=autostat&access_token=ZWNiNzJjMjFkY2FmOWE5MDMwOWE3NDU1NzYwZDYyMGRlOWE4MGI4OTllMDYyYjU3ZTJiYmE3NmU4Yjc0NjU4MA"
-    r2 = requests.get(linkage)
-    courses2 = ElementTree.fromstring(r2.content)
+    r2 = requests.get('https://api.ilsa.ru/auto/v1/offers?q=dealer%3ARU77KI02&t=autostat&access_token=ZWNiNzJjMjFkY2FmOWE5MDMwOWE3NDU1NzYwZDYyMGRlOWE4MGI4OTllMDYyYjU3ZTJiYmE3NmU4Yjc0NjU4MA')
+
+
+    #r2 = requests.get(linkage)
+    print(linkage)
+
+    #courses = ElementTree.fromstring(r2.content)
+    #courses = courses.findall('Vehicle')
+
+
+
+
+    courses2 = dom2.findall('Vehicle')
+    
 
     for c in courses2:
         x +=1
@@ -153,7 +183,7 @@ for c in courses:
         " values ( %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)", (dealer_id, vin, vehicle_id , creation_date, updated_date, mark, model, modification, modification_code, modification_index, color, price, color_code, price_currency, condition_id, condition_mileage))
 
 
-    con.commit()
+    #con.commit()
 
 
 
@@ -175,19 +205,11 @@ for c in courses:
 
     for elem in props_array:
         property_unit = elem.get('Id')
-        insert(property_unit)
 
+        
+        insert(property_unit)
     con.commit()
 
-
-
-    cur.close()
-        
-    
-    
-    
-    
-    
     """ connection to vehicles xml >>>
     linkage = link
     linkage = link + "&t=autostat&access_token=ZWNiNzJjMjFkY2FmOWE5MDMwOWE3NDU1NzYwZDYyMGRlOWE4MGI4OTllMDYyYjU3ZTJiYmE3NmU4Yjc0NjU4MA"
@@ -195,28 +217,46 @@ for c in courses:
     tree2 = ElementTree.fromstring(connect2.content)
     courses3 = tree.findall('Vehicle')
 
-	for c3 in courses3:
+    for c3 in courses3:
 
-		vehicle_id 			= c3.get('Id')
-		creation_date 		= c3.find('CreationDate').text
-		updated_date		= c3.find('UpdateDate').text
-		condition_id		= c3.find('Id').text		#get
-		condition_mileage	= c3.find('Mileage').text			#get
-		mark				= c3.find('Mark').text
-		model				= c3.find('Model').text
-		modification		= c3.find('Modification').text
-		modification_code	= c3.find('ModificationCode').text
-		modification_index	= c3.find('ModificationIndex').text
-		color_code			= c3.find('Code').text
-		color				= c3.find('Color').text
-		price_currency		= c3.find('Currency').text
-		price				= c3.find('Price').text
-	"""		#connection to vehicles xml <<<
-	#vehicles upload @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@<<<
+        vehicle_id 			= c3.get('Id')
+        creation_date 		= c3.find('CreationDate').text
+        updated_date		= c3.find('UpdateDate').text
+        condition_id		= c3.find('Id').text		#get
+        condition_mileage	= c3.find('Mileage').text			#get
+        mark				= c3.find('Mark').text
+        model				= c3.find('Model').text
+        modification		= c3.find('Modification').text
+        modification_code	= c3.find('ModificationCode').text
+        modification_index	= c3.find('ModificationIndex').text
+        color_code			= c3.find('Code').text
+        color				= c3.find('Color').text
+        price_currency		= c3.find('Currency').text
+        price				= c3.find('Price').text
+    """		#connection to vehicles xml <<<
+    #vehicles upload @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@<<<
+#===================psycopg
+
+
+#cur.execute("SELECT id, name, Brand, Location FROM test_19_12 
+#WHERE brand = brand)
+
+#rows = cur.fetchall()
+
+#for x in rows:
+#	print(f"id {x[0]} name {x[1]} {x[2]}")
+
+
+#mySQLQuery = ("""
+#	SELECT amhandler, amname FROM pg_am WHERE oid = '403'
+#	""")
+
+#cur.execute(mySQLQuery)
 
 
 
-
+#result = cur.fetchall()
+#print(result)
 
 
 cur.close()
